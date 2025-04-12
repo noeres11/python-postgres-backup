@@ -26,14 +26,15 @@ def check_replica_status(conn):
         else:
             print(f"Replica is delayed by {lag_bytes} bytes.")
 
-def main():
-    parser = argparse.ArgumentParser(description="Check PostgreSQL replica status")
-    parser.add_argument("--host", required=True, help="Database host")
-    parser.add_argument("--port", default=5432, type=int, help="Database port")
-    parser.add_argument("--dbname", required=True, help="Database name")
-    args = parser.parse_args()
 
-    #password = getpass.getpass("Password: ")
+# Main
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Check PostgreSQL replica status")
+    parser.add_argument("--host", required=True, help="Hostname or IP address.")
+    parser.add_argument("--port", default=5432, type=int, help="Port number.")
+    parser.add_argument("--user", default="postgres", help="PostgreSQL user.")
+    parser.add_argument("--dbname", required=True, help="Database name.")
+    args = parser.parse_args()
 
     try:
         conn = psycopg2.connect(
@@ -43,11 +44,9 @@ def main():
             dbname=args.dbname
         )
         check_replica_status(conn)
+        
     except Exception as e:
         print(f"Error: {e}")
     finally:
         if 'conn' in locals():
             conn.close()
-
-if __name__ == "__main__":
-    main()
