@@ -44,15 +44,22 @@ def backup(host, port, user, dbname, backup_dir):
     except subprocess.CalledProcessError as e:
         print("Backup failed:", e)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Automatic Logical Backups for PostgreSQL using pg_dump.")
-    parser.add_argument("--host", default="localhost")
-    parser.add_argument("--port", default=5432, type=int)
-    parser.add_argument("--user", required=True)
-    parser.add_argument("--dbname", required=True)
-    parser.add_argument("--backup_dir", default="./backups")
+
+    parser.add_argument("--dir", required=True, help="Directory where backups are stored")
+    parser.add_argument("--days", type=int, default=7, help="Retention period in days")
 
     args = parser.parse_args()
+    
 
+# Main
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Create logical backups for a PostgreSQL database using pg_dump.")
+    parser.add_argument("--host", default="localhost", help="Hostname or IP address of the PostgreSQL server.")
+    parser.add_argument("--port", default=5432, type=int, help="Port number on which PostgreSQL is listening.")
+    parser.add_argument("--user", default="postgres", help="PostgreSQL user to perform the backup.")
+    parser.add_argument("--dbname", required=True, help="Database name to back up.")
+    parser.add_argument("--backup_dir", default="./backups", help="Directory where the backup file will be saved. Default: /backups")
+
+    args = parser.parse_args()
     backup(args.host, args.port, args.user, args.dbname, args.backup_dir)
 
