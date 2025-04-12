@@ -7,31 +7,32 @@ Ideal for DBAs looking to streamline maintenance, backups, and monitoring.
 
 ---
 
-### 1. `backup_postgres.py` – Automated Backups with `pg_dump`
+### 1. `backup_database.py` – Automate database backups with `pg_dump`
 
 Performs a PostgreSQL database backup using `pg_dump`, with timestamped output and support for connection arguments.
 
 **Usage:**
 ```bash
 export PGPASSWORD='your_password'
-python3 backup_postgres.py --user postgres --dbname mydb
+python3 backup_postgres.py --dbname mydb
 ```
 What
 **Optional arguments:**
 - `--host` (default: `localhost`)
 - `--port` (default: `5432`)
-- `--out`  (default: `./backups`)
+- `--user` (default: `postgres`)
+- `--backup_dir` (default: `./backups`)
 
 ---
 
-### 2. `delete_old_backups.py` – Delete Old Backups Based on Retention Policy
+### 2. `expire_backups.py` – Delete Old Backups Based on Retention Policy
 
 Removes `.sql` or `.dump` files older than N days from a specified directory.
 Default directory is `/backups`.
 
 **Usage:**
 ```bash
-python3 rotate_backups.py --dir ./backups --days 7
+python3 expire_backups.py --dir ./backups --days 7
 ```
 
 ---
@@ -56,14 +57,9 @@ Detects blocking queries using `pg_stat_activity` and `pg_locks`.
 ## Requirements
 
 - Python 3
-- `psycopg2-binary`
-- PostgreSQL client tools (`pg_dump`)
+-  `psycopg2` module
+- PostgreSQL v.17
 - `PGPASSWORD` environment variable set.
-
-Install dependencies:
-```bash
-pip install -r requirements.txt
-```
 
 ---
 
@@ -74,7 +70,7 @@ Create a virtual environment to isolate dependencies:
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install psycopg2-binary
 ```
 
 ---
@@ -95,6 +91,6 @@ python-postgres-automation/
 
 ---
 
-## 📄 License
+## License
 
-MIT
+
