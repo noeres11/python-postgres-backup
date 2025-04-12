@@ -18,7 +18,7 @@ import argparse
 # - dbname: The name of the database to back up.
 # - backup_dir: The directory where the backup file will be saved.
 #
-def backup(host, port, user, dbname, backup_dir):
+def backup_database(host, port, user, dbname, backup_dir):
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{dbname}_{timestamp}.sql"
@@ -38,28 +38,54 @@ def backup(host, port, user, dbname, backup_dir):
         ]
         env = os.environ.copy()
         env["PGPASSWORD"] = os.getenv("PGPASSWORD", "")
-
         subprocess.run(command, env=env, check=True)
         print("Backup succesfull.")
+        
     except subprocess.CalledProcessError as e:
         print("Backup failed:", e)
-
-
-    parser.add_argument("--dir", required=True, help="Directory where backups are stored")
-    parser.add_argument("--days", type=int, default=7, help="Retention period in days")
-
-    args = parser.parse_args()
     
+
+def connect():
+    """ Connect to the PostgreSQL database server """
+    conn = None
+    try:
+        # read connection parameters
+        params = config()
+
+        # connect to the PostgreSQL server
+        print('Connecting to the PostgreSQL database...')
+        conn = psycopg2.connect(**params)
+        
+        # create a cursor
+        cur = conn.cursor()
+        
+    # execute a statement
+        print('PostgreSQL database version:')
+        cur.execute('SELECT version()')
+
+        # display the PostgreSQL database server version
+        db_version = cur.fetchone()
+        print(db_version)
+       
+    # close the communication with the PostgreSQL
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            print('Database connection closed.')
+
 
 # Main
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create logical backups for a PostgreSQL database using pg_dump.")
-    parser.add_argument("--host", default="localhost", help="Hostname or IP address of the PostgreSQL server.")
-    parser.add_argument("--port", default=5432, type=int, help="Port number on which PostgreSQL is listening.")
+    parser.add_argument("--host", default="localhost", help="Hostname or IP address.")
+    parser.add_argument("--port", default=5432, type=int, help="Port number.")
     parser.add_argument("--user", default="postgres", help="PostgreSQL user to perform the backup.")
     parser.add_argument("--dbname", required=True, help="Database name to back up.")
-    parser.add_argument("--backup_dir", default="./backups", help="Directory where the backup file will be saved. Default: /backups")
-
+    parser.add_argument("--backup_dir", default="./backups", help="Target directory to save the backup. Default: backups/")
     args = parser.parse_args()
-    backup(args.host, args.port, args.user, args.dbname, args.backup_dir)
-
+    
+    backup_database(args.host, args.port, args.user, args.dbname, args.backup_dir)
+    
